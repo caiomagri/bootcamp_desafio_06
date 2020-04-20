@@ -12,7 +12,7 @@ interface RequestDTO {
   filename: string;
 }
 
-interface ResultCSVParse {
+interface TransactionDTO {
   title: string;
   value: number;
   type: 'income' | 'outcome';
@@ -27,21 +27,18 @@ class ImportTransactionsService {
 
     const content = fs.readFileSync(filePath);
 
-    const records: ResultCSVParse[] = csv(content, {
+    const importedTransactions: TransactionDTO[] = csv(content, {
       columns: true,
       trim: true,
       skip_empty_lines: true,
     });
 
-    const response = records.reduce(async (task: any, data) => {
-      const result: any = await task;
-      if (result instanceof Transaction) transactions.push(result);
-      return createTransaction.execute(data);
-    }, Promise.resolve());
+    for (const trans of importedTransactions) {
+      const newTransaction = await createTransaction.execute(trans);
+      transactions.push(newTransaction);
+    }
 
-    const trans = await Promise.resolve(response);
-
-    transactions.push(trans);
+    await fs.promises.unlink(filePath);
     return transactions;
   }
 }

@@ -20,7 +20,7 @@ class CreateTransactionService {
     value,
     type,
     category,
-  }: RequestDTO): Promise<Transaction | undefined> {
+  }: RequestDTO): Promise<Transaction> {
     const categoryRepository = getRepository(Category);
     const transactionsRepository = getCustomRepository(TransactionsRepository);
     const balance = await transactionsRepository.getBalance();
@@ -38,20 +38,16 @@ class CreateTransactionService {
       await categoryRepository.save(categoryFinded);
     }
 
-    const payload = transactionsRepository.create({
+    const transaction = transactionsRepository.create({
       title,
       value,
       type,
       category_id: categoryFinded.id,
     });
 
-    const transaction = await transactionsRepository.save(payload);
+    await transactionsRepository.save(transaction);
 
-    const response = await transactionsRepository.findOne({
-      where: { id: transaction.id },
-    });
-
-    return response;
+    return transaction;
   }
 }
 
