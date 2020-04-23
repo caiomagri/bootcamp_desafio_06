@@ -25,9 +25,9 @@ class ImportTransactionsService {
     const filePath = path.join(uploadConfig.directory, filename);
     const transactions: Transaction[] = [];
 
-    const content = fs.readFileSync(filePath);
+    const fileContent = fs.readFileSync(filePath);
 
-    const importedTransactions: TransactionDTO[] = csv(content, {
+    const importedTransactions: TransactionDTO[] = csv(fileContent, {
       columns: true,
       trim: true,
       skip_empty_lines: true,
